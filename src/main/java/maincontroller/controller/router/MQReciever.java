@@ -1,4 +1,4 @@
-package maincontroller.mqconfig;
+package maincontroller.controller.router;
 
 import org.springframework.amqp.rabbit.annotation.RabbitListener;
 import org.springframework.messaging.handler.annotation.Payload;
