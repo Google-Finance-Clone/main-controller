@@ -2,16 +2,16 @@ package maincontroller.controller;
 
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
+import com.google.gson.JsonObject;
+import com.google.gson.JsonParser;
 import maincontroller.mqconfig.MQSender;
 import org.springframework.amqp.rabbit.annotation.EnableRabbit;
 import org.springframework.amqp.rabbit.annotation.RabbitListener;
 import org.springframework.amqp.rabbit.core.RabbitTemplate;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.core.ParameterizedTypeReference;
-import org.springframework.web.bind.annotation.PathVariable;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
+
 import javax.servlet.http.HttpServletRequest;
 import java.io.BufferedReader;
 import java.io.IOException;
@@ -35,14 +35,24 @@ public class controllerConfig {
         System.out.println("test");
     }
 
-    @PostMapping("/{microserviceName}")
-    public void routeRequest(@PathVariable String microserviceName, HttpServletRequest request) {
+    @PostMapping("/{microserviceName}/**")
+    public String routeRequest(@PathVariable String microserviceName, @RequestBody String request) {
         String routingKey = microserviceName.substring(0,microserviceName.length()-1) + "Sender";
         int instance= Integer.parseInt(microserviceName.substring(microserviceName.length()-1));
         String requestId = java.util.UUID.randomUUID().toString();
-        String jsonRequest = convertRequestToJson(request,requestId);
-        rabbitTemplate.convertSendAndReceiveAsType(routingKey, jsonRequest,new ParameterizedTypeReference<Gson>() {});
-//        rabbitTemplate.convertAndSend(routingKey, jsonRequest);
+//        String jsonRequest = convertRequestToJson(request,requestId);
+//        Gson gson = new GsonBuilder().serializeSpecialFloatingPointValues().create();
+//          String request2= gson.toJson(request);
+//        JsonObject request2 = JsonParser.parseString(request).getAsJsonObject();
+          System.out.println(request+"request2");
+//        com.google.gson.JsonObject request2 = gson.fromJson(request, com.google.gson.JsonObject.class);
+
+//        JsonObject jsonRequest= new Gson().fromJson(request, JsonObject.class);
+//        jsonRequest.addProperty("correlationId", requestId);
+        String response =rabbitTemplate.convertSendAndReceiveAsType("portfolioSender", request,new ParameterizedTypeReference<String>() {}).toString();
+        System.out.println(response+"response");
+        return response;
+        //        rabbitTemplate.convertAndSend(routingKey, jsonRequest);
     }
 
         private String convertRequestToJson(HttpServletRequest request, String requestId) {
