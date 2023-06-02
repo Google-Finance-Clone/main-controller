@@ -49,7 +49,7 @@ public class controllerConfig {
 
 //        JsonObject jsonRequest= new Gson().fromJson(request, JsonObject.class);
 //        jsonRequest.addProperty("correlationId", requestId);
-        String response =rabbitTemplate.convertSendAndReceiveAsType("portfolioSender", request,new ParameterizedTypeReference<String>() {}).toString();
+        String response =rabbitTemplate.convertSendAndReceiveAsType(routingKey+"Sender", request,new ParameterizedTypeReference<String>() {}).toString();
         System.out.println(response+"response");
         return response;
         //        rabbitTemplate.convertAndSend(routingKey, jsonRequest);
